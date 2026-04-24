@@ -1,0 +1,197 @@
+import java.util.ArrayList;
+import java.util.Scanner;
+
+public class SistemaPagamento {
+    int numeroRegistro;
+    String nomeCompleto;
+    int tipoFuncionario;
+
+    static final double salarioBase = 2000.0;
+
+    double comissao;
+    double bonus;
+    double salarioFinal;
+
+    // CONSTRUTOR
+    public SistemaPagamento(int numeroRegistro, String nomeCompleto, int tipoFuncionario) {
+        this.numeroRegistro = numeroRegistro;
+        this.nomeCompleto = nomeCompleto;
+        this.tipoFuncionario = tipoFuncionario;
+    }
+
+    // MÉTODO DE CÁLCULO DO SALÁRIO
+    public double calcularSalario(Scanner scanner) {
+        double salarioFinal;
+
+        switch (tipoFuncionario) {
+            case 1:
+                salarioFinal = salarioBase;
+                break;
+
+            case 2:
+                System.out.println("Digite o Total de vendas:");
+                while (!scanner.hasNextDouble()) {
+                    System.out.println("Entrada inválida! Digite um número válido:");
+                    scanner.next();
+                }
+                double vendas = scanner.nextDouble();
+
+                System.out.println("Digite o Percentual de comissão:");
+                while (!scanner.hasNextDouble()) {
+                    System.out.println("Entrada inválida! Digite um número válido:");
+                    scanner.next();
+                }
+                double percentual = scanner.nextDouble();
+
+                comissao = (vendas * percentual) / 100;
+                salarioFinal = salarioBase + comissao;
+                break;
+
+            case 3:
+                System.out.println("Digite o Valor por peça:");
+                while (!scanner.hasNextDouble()) {
+                    System.out.println("Entrada inválida! Digite um número válido:");
+                    scanner.next();
+                }
+                double valorPorPeca = scanner.nextDouble();
+
+                System.out.println("Digite a Quantidade produzida:");
+                while (!scanner.hasNextInt()) {
+                    System.out.println("Entrada inválida! Digite um número válido:");
+                    scanner.next();
+                }
+                int quantidade = scanner.nextInt();
+
+                bonus = valorPorPeca * quantidade;
+                salarioFinal = salarioBase + bonus;
+                break;
+
+            default:
+                System.out.println("Tipo de funcionário inexistente!");
+                return 0.0;
+        }
+
+        this.salarioFinal = salarioFinal;
+        return salarioFinal;
+    }
+
+    // EXIBIR RESULTADO
+    public void exibirResultado() {
+
+        System.out.println("\n--- RESULTADO ---");
+        System.out.println("Funcionário: " + nomeCompleto);
+        System.out.println("Matrícula: " + numeroRegistro);
+
+        if (tipoFuncionario == 1) {
+            System.out.println("Tipo: Funcionário padrão");
+        } else if (tipoFuncionario == 2) {
+            System.out.println("Tipo: Funcionário comissionado");
+            System.out.printf("Comissão: R$ %.2f\n", comissao);
+        } else if (tipoFuncionario == 3) {
+            System.out.println("Tipo: Funcionário de produção");
+            System.out.printf("Bônus: R$ %.2f\n", bonus);
+        }
+
+        System.out.printf("Salário final: R$ %.2f\n", salarioFinal);
+    }
+
+    // MAIN
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        ArrayList<SistemaPagamento> funcionarios = new ArrayList<>();
+
+        System.out.println("====================================");
+        System.out.println("  SISTEMA DE FOLHA DE PAGAMENTO");
+        System.out.println("  Bem-vindo ao sistema!");
+        System.out.println("====================================");
+
+        while (true) {
+            System.out.println("\n===== MENU =====");
+            System.out.println("1 - Cadastrar Funcionário Padrão");
+            System.out.println("2 - Cadastrar Funcionário Comissionado");
+            System.out.println("3 - Cadastrar Funcionário Produção");
+            System.out.println("4 - Gerar folha de pagamento");
+            System.out.println("0 - Sair");
+            System.out.print("Escolha uma opção: ");
+
+            int opcao;
+
+            try {
+                opcao = Integer.parseInt(scanner.nextLine());
+            } catch (Exception e) {
+                System.out.println("Digite um número válido!");
+                continue;
+            }
+
+            // =========================
+            // CADASTROS (1, 2, 3)
+            // =========================
+            if (opcao >= 1 && opcao <= 3) {
+
+                System.out.println("\n=== NOVO CADASTRO ===");
+
+                System.out.println("Digite o número de registro do funcionário:");
+                while (!scanner.hasNextInt()) {
+                    System.out.println("Entrada inválida! Digite um número válido:");
+                    scanner.next();
+                }
+                int numeroRegistro = scanner.nextInt();
+                scanner.nextLine();
+
+                System.out.println("Digite o Nome completo do funcionário:");
+                String nome = scanner.nextLine();
+
+                while (nome.trim().isEmpty() || (!nome.matches("[a-zA-ZÀ-ÿ ]+"))) {
+                    System.out.println("Entrada inválida! Digite um nome válido:");
+                    nome = scanner.nextLine();
+                }
+
+                int tipoFuncionario = opcao;
+
+                SistemaPagamento sistema =
+                        new SistemaPagamento(numeroRegistro, nome, tipoFuncionario);
+
+                sistema.calcularSalario(scanner);
+                funcionarios.add(sistema);
+
+                System.out.println("\nFuncionário cadastrado com sucesso!");
+            }
+
+            // =========================
+            // GERAR RELATÓRIO
+            // =========================
+            else if (opcao == 4) {
+                System.out.println("\nTotal cadastrados: " + funcionarios.size());
+
+                if (funcionarios.isEmpty()) {
+                    System.out.println("\nNenhum funcionário cadastrado.");
+                } else {
+                    System.out.println("\n===== RELATÓRIO GERAL DE PAGAMENTOS =====");
+
+                    for (SistemaPagamento funcionario : funcionarios) {
+                        funcionario.exibirResultado();
+                    }
+
+                    System.out.println("==========================================");
+                }
+            }
+
+            // =========================
+            // SAIR
+            // =========================
+            else if (opcao == 0) {
+                System.out.println("Encerrando programa...");
+                break;
+            }
+
+            // =========================
+            // OPÇÃO INVÁLIDA
+            // =========================
+            else {
+                System.out.println("Opção inválida!");
+            }
+        }
+
+        scanner.close();
+    }
+}
